@@ -1,5 +1,3 @@
-console.log("test");
-
 /*
     Gameboard is composed of Cells that hold a value
     that represents which Player marked them. 0=neutral, 1=P1, 2=P2
@@ -42,8 +40,7 @@ function Player(val) {
 /*
     Game Logic 
 */
-function GameLogic(initialSize) {
-
+const Game = (function(initialSize=3) {
     /*
     Gameboard
     */
@@ -85,21 +82,27 @@ function GameLogic(initialSize) {
     function startGame() {
         player0 = Player(0); 
         player1 = Player(1);
-
-        /*let winnerFound = false; 
-
-        while (!winnerFound) {
-            doTurn(); 
-        } */
+        Gameboard.initBoard();
     }
 
     function doTurn(i, j, player) {
 
-        //receives playervalues  
-        //selectCell() 
         turnTimer++;
+        whoseTurn = whoseTurn == 0 ? 1 : 0; 
         Gameboard.modifyBoard(i, j, player); 
-        console.log(checkWin(turnTimer)); 
+        let check = checkWin(turnTimer); 
+
+        if (check === 0) {
+            console.log("0 wins!");
+        } else if (check == 1) {
+            console.log("1 wins!");
+        } else if (check == -1) {
+            console.log("it's a draw!");
+        }
+    }
+
+    function getPlayer() {
+        return whoseTurn; 
     }
 
     function printBoard() {
@@ -112,6 +115,14 @@ function GameLogic(initialSize) {
             str = str + "\n";
         }
         console.log(str);
+    }
+
+    function getGameboard() {
+        return Gameboard;
+    }
+
+    function getSize() {
+        return size; 
     }
 
     function setBoard(arr) {
@@ -201,15 +212,54 @@ function GameLogic(initialSize) {
 
         return (turn == size * size) ? -1 : -2;  
     }
+    return {startGame, checkWin, printBoard, setBoard, doTurn, getGameboard, getSize, getPlayer};
+})(); 
 
-    return {startGame, checkWin, printBoard, setBoard, doTurn};
+function ScreenController() {
+
+    let boardDiv;
+
+    function init() {
+        boardDiv = document.querySelector(".game-container");
+        boardDiv.addEventListener("click", handleClick); 
+        Game.startGame(); 
+        renderBoard(); 
+    }
+
+    function renderBoard() {
+        boardDiv.textContent = "";
+        const gameBoard = Game.getGameboard(); 
+        const size = Game.getSize(); 
+
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                let cell = document.createElement("button");
+                cell.dataset.player = gameBoard.getBoardCell(i, j);
+                cell.textContent = gameBoard.getBoardCell(i, j);
+                cell.dataset.row = i; 
+                cell.dataset.col = j; 
+                boardDiv.appendChild(cell);
+            }
+        } 
+
+        boardDiv.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    }
+
+    function handleClick(e) {
+     
+        const cell = e.target; 
+        if (cell.matches("button")) {
+            const turn = Game.getPlayer(); 
+    
+            if (Number(cell.dataset.player) === -1) {
+                Game.doTurn(Number(cell.dataset.row), Number(cell.dataset.col), turn);
+                renderBoard(); 
+            }
+        }
+    }
+
+    return { init }; 
 }
 
-
-let testarr = [
-    [-1, 0, 0],
-    [-1, 0, 1],
-    [0, 1, -1]
-]; 
-
-test = GameLogic(3); 
+const screen = ScreenController(); 
+screen.init(); 
