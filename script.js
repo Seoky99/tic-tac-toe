@@ -77,6 +77,7 @@ const Game = (function(initialSize=3) {
     let player1; 
     let whoseTurn = 0; 
     let turnTimer = 0; 
+    let winnerCallback = null; 
     const size = initialSize; 
 
     function startGame() {
@@ -85,19 +86,24 @@ const Game = (function(initialSize=3) {
         Gameboard.initBoard();
     }
 
-    function doTurn(i, j, player) {
+    function setWinnerCallback(callback) {
+        winnerCallback = callback;
+    }
 
+    function doTurn(i, j, player) {
         turnTimer++;
         whoseTurn = whoseTurn == 0 ? 1 : 0; 
         Gameboard.modifyBoard(i, j, player); 
         let check = checkWin(turnTimer); 
 
-        if (check === 0) {
-            console.log("0 wins!");
-        } else if (check == 1) {
-            console.log("1 wins!");
-        } else if (check == -1) {
-            console.log("it's a draw!");
+        if (check === 0 && winnerCallback != null) {
+            player0.incrementPlayerWins(); 
+            winnerCallback(check);
+        } else if (check == 1 && winnerCallback != null) {
+            player1.incrementPlayerWins(); 
+            winnerCallback(check); 
+        } else if (check == -1 && winnerCallback != null) {
+            winnerCallback(check);
         }
     }
 
@@ -212,16 +218,18 @@ const Game = (function(initialSize=3) {
 
         return (turn == size * size) ? -1 : -2;  
     }
-    return {startGame, checkWin, printBoard, setBoard, doTurn, getGameboard, getSize, getPlayer};
+    return {startGame, checkWin, printBoard, setBoard, doTurn, getGameboard, getSize, getPlayer, setWinnerCallback};
 })(); 
 
 function ScreenController() {
 
     let boardDiv;
+    let winner = false; 
 
     function init() {
         boardDiv = document.querySelector(".game-container");
         boardDiv.addEventListener("click", handleClick); 
+        Game.setWinnerCallback(handleWin);
         Game.startGame(); 
         renderBoard(); 
     }
@@ -235,9 +243,9 @@ function ScreenController() {
             for (let j = 0; j < size; j++) {
                 let cell = document.createElement("button");
                 cell.dataset.player = gameBoard.getBoardCell(i, j);
-                cell.textContent = gameBoard.getBoardCell(i, j);
                 cell.dataset.row = i; 
                 cell.dataset.col = j; 
+                cell.classList = `cell ${cellClassName(gameBoard.getBoardCell(i, j))}`;
                 boardDiv.appendChild(cell);
             }
         } 
@@ -245,17 +253,37 @@ function ScreenController() {
         boardDiv.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
     }
 
+    function cellClassName(player) {
+        switch (player) {
+            case 0:
+                return "X";
+            case 1:
+                return "O";
+            default:
+                return "none";
+        }
+    }
+
     function handleClick(e) {
      
-        const cell = e.target; 
-        if (cell.matches("button")) {
-            const turn = Game.getPlayer(); 
-    
-            if (Number(cell.dataset.player) === -1) {
-                Game.doTurn(Number(cell.dataset.row), Number(cell.dataset.col), turn);
-                renderBoard(); 
+        if (!winner) {
+
+            const cell = e.target; 
+            if (cell.matches("button")) {
+                const turn = Game.getPlayer(); 
+        
+                if (Number(cell.dataset.player) === -1) {
+                    Game.doTurn(Number(cell.dataset.row), Number(cell.dataset.col), turn);
+                    renderBoard(); 
+                }
             }
         }
+    }
+
+    function handleWin(player) {
+        const ads = document.querySelector(".score-container");
+        ads.textContent = `Player ${player} wins!`;
+        winner = true; 
     }
 
     return { init }; 

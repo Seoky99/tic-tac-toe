@@ -1,7 +1,49 @@
-h1 {
-    background-color: red;
+* {
+    padding: 0; 
+    margin: 0; 
+    list-style: none;
+}
+
+body {
+    height: 100vh;
+}
+
+.main-container {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header {
+    padding-top: 2.5%;
 }
 
 .game-container {
     display: grid;
+    gap: 10px;
+}
+
+.cell {
+    background-color: #fff;
+    box-sizing: border-box;
+    width: 150px;
+    height: 150px;
+    border: 2px solid black;
+    border-radius: 20px;
+
+    &.none {
+        background-color: #fff;
+    }
+
+    &.X {
+        background-image: url("x.png");
+        background-size: cover;
+    }
+
+    &.O {
+        background-image: url("o.png");
+        background-size: cover;
+    }
 }
