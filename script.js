@@ -231,7 +231,7 @@ function ScreenController() {
         boardDiv.addEventListener("click", handleClick); 
         Game.setWinnerCallback(handleWin);
         Game.startGame(); 
-        renderBoard(); 
+        handleButtons();
     }
 
     function renderBoard() {
@@ -253,6 +253,32 @@ function ScreenController() {
         boardDiv.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
     }
 
+    function handleButtons() {
+        const startButton = document.querySelector("#start");
+        const buttonContainer = document.querySelector(".button-container");
+        const restartButton = document.createElement("button");
+        restartButton.id = "restart";
+        restartButton.textContent = "Restart";
+
+        startButton.addEventListener("click", e => {
+            renderBoard();
+            buttonContainer.removeChild(startButton);
+            buttonContainer.appendChild(restartButton);
+        });
+
+        restartButton.addEventListener("click", resetGame);
+    }
+
+    function resetGame() {
+        Game.startGame();
+        renderBoard();
+        document.querySelectorAll(".player h1").forEach(elt => {
+            elt.classList.remove("winner");
+            elt.classList.remove("draw");
+        });
+        winner = false;
+    }
+
     function cellClassName(player) {
         switch (player) {
             case 0:
@@ -265,9 +291,7 @@ function ScreenController() {
     }
 
     function handleClick(e) {
-     
         if (!winner) {
-
             const cell = e.target; 
             if (cell.matches("button")) {
                 const turn = Game.getPlayer(); 
@@ -281,8 +305,19 @@ function ScreenController() {
     }
 
     function handleWin(player) {
-        const ads = document.querySelector(".score-container");
-        ads.textContent = `Player ${player} wins!`;
+
+        const p1 = document.querySelector(".player.left h1");
+        const p2 = document.querySelector(".player.right h1");
+
+        if (player==0) {
+            p1.classList.add("winner");
+        } else if (player==1) {
+            p2.classList.add("winner");
+        } else {
+            p1.classList.add("draw");
+            p2.classList.add("draw");
+        }
+
         winner = true; 
     }
 

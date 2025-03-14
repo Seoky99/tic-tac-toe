@@ -8,16 +8,44 @@ body {
     height: 100vh;
 }
 
+.header {
+    padding-top: 2.5%;
+}
+
 .main-container {
     display: flex;
     height: 100%;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
 }
 
-.header {
-    padding-top: 2.5%;
+.content-container {
+    display: flex;
+    justify-content: center;
+    gap: 10%;
+    align-items: center;
+}
+
+.player {
+    padding: 25px;
+    font-size: 4rem;
+    color: white;
+    text-align: center;
+    border: 2px solid black;
+    background-size: cover;
+    border-radius: 30px;
+    background-color: lightgray;
+    text-shadow: black 2px 2px;
+    position: relative;
+
+    &.left {
+        background-image: url("x.png");
+    }
+
+    &.right {
+        background-image: url("o.png");
+    }
 }
 
 .game-container {
@@ -47,3 +75,48 @@ body {
         background-size: cover;
     }
 }
+
+.draw:before {
+    position: absolute;
+    top: -30%;
+    left: -10%;
+    content: "DRAW!"; 
+    font-size: 50px; 
+    color: black; 
+    text-shadow: none;
+}
+
+
+
+.winner:before {
+    position: absolute;
+    top: -30%;
+    left: -10%;
+    content: "WINNER!"; 
+    font-size: 50px; 
+    color: green; 
+    text-shadow: none;
+}
+
+.score-container{
+    width: 30.5%;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 5%;
+}
+
+.score-container button {
+    padding: 15px 0px;
+    width: 50%;
+    font-size: 1.1rem;
+    background-color: #fff;
+}
+
+button:active {
+    transform: translateY(4px);
+}
+
+
